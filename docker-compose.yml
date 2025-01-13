@@ -1,0 +1,30 @@
+version: '3.9'
+services:
+  pds:
+    container_name: pds
+    image: ghcr.io/bluesky-social/pds:latest
+    restart: unless-stopped
+    volumes:
+      - ./pds:/pds
+      - ./data:/data
+    env_file:
+      - .env
+    environment:
+      - NODE_ENV=production
+      # SMTP Configuration
+      - PDS_EMAIL_SMTP_URL=smtp${SMTP_ENCRYPTION}://${SMTP_USER}:${SMTP_PASS}@${SMTP_HOST}:${SMTP_PORT}/
+      - PDS_EMAIL_FROM_ADDRESS=${SMTP_FROM}
+    networks:
+      - shared_network
+    ports:
+      - "3000:3000"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/xrpc/_health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+networks:
+  shared_network:
+    external: true 
