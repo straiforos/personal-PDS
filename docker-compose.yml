@@ -31,16 +31,16 @@ services:
       retries: 3
       start_period: 40s
 
-  nginx:
+  pds-proxy:
     image: nginx:alpine
     container_name: pds-nginx
     restart: unless-stopped
     volumes:
-      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
-      - ./nginx-main.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro,z
+      - ./nginx-main.conf:/etc/nginx/nginx.conf:ro,z
+      - ./.well-known:/static/.well-known:ro,z
     ports:
-      - "80:80"
-      - "443:443"
+      - "7777:80"
     depends_on:
       - pds
     networks:
