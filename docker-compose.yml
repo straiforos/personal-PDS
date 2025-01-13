@@ -12,14 +12,14 @@ services:
       - .env
     environment:
       - NODE_ENV=production
-      # SMTP Configuration
-      - PDS_EMAIL_SMTP_URL=smtp${SMTP_ENCRYPTION}://${SMTP_USER}:${SMTP_PASS}@${SMTP_HOST}:${SMTP_PORT}/
+      # SMTP Configuration for Resend
+      - PDS_EMAIL_SMTP_URL=smtps://${SMTP_USER}:${SMTP_PASS}@${SMTP_HOST}:${SMTP_PORT}/
       - PDS_EMAIL_FROM_ADDRESS=${SMTP_FROM}
       # Disk Blobstore Configuration
       - PDS_BLOBSTORE_DISK_LOCATION=/app/blobstore
       - PDS_BLOBSTORE_DISK_TMP_LOCATION=/app/blobstore/tmp
       # PLC Configuration
-      - PDS_PLC_ROTATION_KEY_K256=${PLC_ROTATION_KEY}
+      - PDS_PLC_ROTATION_KEY_K256_PRIVATE_KEY_HEX=${PLC_ROTATION_KEY}
     networks:
       - shared_network
     ports:

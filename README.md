@@ -1,8 +1,9 @@
 # Personal Data Server PDS - triforce09.traiforos.com
 
-## BlueSky PDS Fork submodule
+## References
 
-- https://github.com/straiforos/pds
+- [PDS Environment Configuration Source](https://github.com/bluesky-social/atproto/blob/main/packages/pds/src/config/env.ts)
+- [BlueSky PDS Fork](https://github.com/straiforos/pds)
 
 ## Setting up submodule in the repo cron-backups/restore-scripts/PDS
 
@@ -74,6 +75,8 @@ SMTP_ENCRYPTION=tls
    - Go to Security > 2-Step Verification > App passwords
    - Create new app password for "PDS"
    - Update SMTP_PASS in .env with generated password
+   - Important: Remove any spaces from the app password when copying it
+   - Example: Change "xxxx yyyy zzzz wwww" to "xxxxyyyyyzzzzwwww"
 
 5. Create blobstore directories:
 ```bash

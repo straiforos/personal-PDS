@@ -54,9 +54,7 @@ if ! PROCESSED_KEY=$(echo "$KEY" | \
     openssl ec -text -noout 2>"$TEMP_DIR/error.log" | \
     grep priv -A 3 | \
     tail -n +2 | \
-    tr -d '\n[:space:]:' | \
-    xxd -r -p | \
-    base64); then
+    tr -d '\n[:space:]:'); then
     echo -e "${RED}Error processing key:${NC}"
     cat "$TEMP_DIR/error.log"
     exit 1
@@ -69,7 +67,7 @@ fi
 
 echo -e "${GREEN}Successfully generated PLC rotation key!${NC}"
 echo
-echo "Generated key: $PROCESSED_KEY"
+echo "Generated key (hex format): $PROCESSED_KEY"
 echo
 echo -e "${YELLOW}Please add this key to your .env file as:${NC}"
 echo "PLC_ROTATION_KEY=$PROCESSED_KEY"
