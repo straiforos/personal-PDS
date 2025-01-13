@@ -1,0 +1,3 @@
+[submodule "pds"]
+	path = pds
+	url = https://github.com/straiforos/pds.git
