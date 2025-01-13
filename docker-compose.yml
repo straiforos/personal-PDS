@@ -2,7 +2,7 @@ version: '3.9'
 services:
   pds:
     container_name: pds
-    image: ghcr.io/bluesky-social/pds:latest
+    image: ghcr.io/bluesky-social/c:latest
     restart: unless-stopped
     volumes:
       - ./pds:/pds
@@ -30,6 +30,21 @@ services:
       timeout: 10s
       retries: 3
       start_period: 40s
+
+  nginx:
+    image: nginx:alpine
+    container_name: pds-nginx
+    restart: unless-stopped
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./nginx-main.conf:/etc/nginx/nginx.conf:ro
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - pds
+    networks:
+      - shared_network
 
 networks:
   shared_network:

@@ -272,3 +272,33 @@ Common PLC Issues:
 - Incorrectly formatted key
 - Key not properly set in environment
 - Backup your .env file before regenerating keys
+
+## NGINX Configuration
+
+The PDS service uses NGINX in a Docker container for reverse proxy:
+
+1. The configuration files are:
+   - `nginx.conf`: Site-specific configuration
+   - `nginx-main.conf`: Main NGINX configuration
+
+2. Start the services:
+```bash
+docker compose up -d
+```
+
+3. Verify NGINX is running:
+```bash
+docker compose ps nginx
+docker compose logs nginx
+```
+
+4. Test the endpoints:
+```bash
+# Health check
+curl http://localhost/xrpc/_health
+
+# DID endpoint
+curl http://localhost/.well-known/atproto-did
+```
+
+Note: Since we're using Docker, NGINX automatically connects to the PDS service using Docker's internal networking.
