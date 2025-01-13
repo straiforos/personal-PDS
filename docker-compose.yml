@@ -1,5 +1,18 @@
 version: '3.9'
 services:
+  ipfs:
+    container_name: pds-ipfs
+    image: ipfs/kubo:latest
+    restart: unless-stopped
+    volumes:
+      - ./ipfs:/data/ipfs
+    ports:
+      - "4001:4001" # IPFS swarm
+      - "8080:8080" # IPFS gateway
+      - "5001:5001" # IPFS API
+    networks:
+      - shared_network
+
   pds:
     container_name: pds
     image: ghcr.io/bluesky-social/pds:latest
@@ -14,6 +27,12 @@ services:
       # SMTP Configuration
       - PDS_EMAIL_SMTP_URL=smtp${SMTP_ENCRYPTION}://${SMTP_USER}:${SMTP_PASS}@${SMTP_HOST}:${SMTP_PORT}/
       - PDS_EMAIL_FROM_ADDRESS=${SMTP_FROM}
+      # IPFS Configuration
+      - PDS_BLOBSTORE_PROVIDER=ipfs
+      - PDS_BLOBSTORE_IPFS_API_URL=http://ipfs:5001
+      - PDS_BLOBSTORE_IPFS_GATEWAY_URL=http://ipfs:8080
+    depends_on:
+      - ipfs
     networks:
       - shared_network
     ports:
