@@ -2,7 +2,7 @@ version: '3.9'
 services:
   pds:
     container_name: pds
-    image: ghcr.io/bluesky-social/c:latest
+    image: ghcr.io/bluesky-social/pds:latest
     restart: unless-stopped
     volumes:
       - ./pds:/pds
