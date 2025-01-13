@@ -18,17 +18,47 @@ git submodule update --init --recursive
 cp .env.dist .env
 ```
 
-2. Configure the required environment variables:
+2. Generate required keys:
+
+   a. Generate JWT secret:
+   ```bash
+   openssl rand -base64 32
+   ```
+
+   b. Generate PLC rotation key:
+   ```bash
+   # Install required dependencies if needed
+   # Ubuntu/Debian:
+   sudo apt-get update
+   sudo apt-get install openssl vim-common coreutils
+
+   # Make script executable
+   chmod +x generate-plc-key.sh
+   
+   # Generate key
+   ./generate-plc-key.sh
+   ```
+
+   The PLC key generation script will:
+   - Check for required dependencies
+   - Generate a secure secp256k1 private key
+   - Format it appropriately for PDS
+   - Optionally update your .env file directly
+   - Create a backup of your .env file if modified
+
+3. Configure the required environment variables:
 ```bash
 # PDS Configuration
-PDS_JWT_SECRET=<generate-a-secure-random-string>
+PDS_JWT_SECRET=<from-step-2a>
 PDS_ADMIN_PASSWORD=<your-admin-password>
 PDS_ADMIN_EMAIL=stephen@traiforos.com
 
-# IPFS Configuration
-PDS_BLOBSTORE_PROVIDER=ipfs
-PDS_BLOBSTORE_IPFS_API_URL=http://ipfs:5001
-PDS_BLOBSTORE_IPFS_GATEWAY_URL=http://ipfs:8080
+# PLC Configuration
+PLC_ROTATION_KEY=<from-step-2b>
+
+# Disk Storage Configuration
+PDS_BLOBSTORE_DISK_LOCATION=/app/blobstore
+PDS_BLOBSTORE_DISK_TMP_LOCATION=/app/blobstore/tmp
 
 # SMTP Configuration
 SMTP_HOST=smtp.gmail.com
@@ -39,20 +69,26 @@ SMTP_FROM=pds@traiforos.com
 SMTP_ENCRYPTION=tls
 ```
 
-3. Generate Gmail App Password:
+4. Generate Gmail App Password:
    - Enable 2FA in your Google Account
    - Go to Security > 2-Step Verification > App passwords
    - Create new app password for "PDS"
    - Update SMTP_PASS in .env with generated password
 
+5. Create blobstore directories:
+```bash
+mkdir -p blobstore/tmp
+chmod -R 777 blobstore
+```
+
 ## Deployment Steps
 
-1. Start the PDS and IPFS containers:
+1. Start the PDS container:
 ```bash
 docker compose up -d
 ```
 
-2. Verify services are running:
+2. Verify the service is running:
 ```bash
 docker compose ps
 ```
@@ -60,40 +96,30 @@ docker compose ps
 3. Check the logs:
 ```bash
 docker compose logs -f pds
-docker compose logs -f ipfs
 ```
 
-## IPFS Configuration
+## Storage Configuration
 
-The PDS uses IPFS (InterPlanetary File System) for decentralized storage. The setup includes:
-- IPFS node running in a container
-- Exposed ports:
-  - 4001: IPFS swarm
-  - 8080: IPFS gateway
-  - 5001: IPFS API
+The PDS uses local disk storage for blobs. The setup includes:
+- Local directory: `./blobstore`
+- Temporary storage: `./blobstore/tmp`
+- Mounted at: `/app/blobstore` in container
 
-### Testing IPFS
+### Testing Storage
 
-1. Make the test script executable:
+1. Check storage permissions:
 ```bash
-chmod +x test-ipfs.sh
+ls -la blobstore
 ```
 
-2. Run the IPFS test:
+2. Monitor storage usage:
 ```bash
-./test-ipfs.sh
+du -sh blobstore
 ```
 
-3. Monitor IPFS:
+3. Verify container access:
 ```bash
-# Check IPFS peer connections
-docker compose exec ipfs ipfs swarm peers
-
-# View IPFS node stats
-docker compose exec ipfs ipfs stats bw
-
-# Check IPFS repo size
-docker compose exec ipfs ipfs repo stat
+docker compose exec pds ls -la /app/blobstore
 ```
 
 ## SMTP Testing
@@ -146,18 +172,17 @@ docker compose exec pds pdsadmin create-invite-code
 ## Backup and Restore
 
 TODO:
-- Add backup script for PDS
-- Add backup script for IPFS data
+- Add backup script for PDS configuration
+- Add backup script for blobstore data
 - Add restore script for PDS
-- Add restore script for IPFS data
+- Add restore script for blobstore data
 
 ## Troubleshooting
 
-1. Check service status:
+1. Check PDS container status:
 ```bash
 docker compose ps
 docker compose logs pds
-docker compose logs ipfs
 ```
 
 2. Verify ngrok tunnel:
@@ -175,19 +200,32 @@ curl https://triforce09.traiforos.com/xrpc/_health
 ./test-smtp.sh
 ```
 
-5. Test IPFS functionality:
+5. Check storage:
 ```bash
-./test-ipfs.sh
+# View storage permissions
+ls -la blobstore
+
+# Check storage usage
+du -sh blobstore
+
+# Verify container access
+docker compose exec pds ls -la /app/blobstore
 ```
 
-6. IPFS Troubleshooting:
+6. PLC Key Issues:
 ```bash
-# Check IPFS daemon status
-docker compose exec ipfs ipfs id
+# Verify PLC key is set
+docker compose exec pds env | grep PLC
 
-# View IPFS config
-docker compose exec ipfs ipfs config show
+# Generate a new PLC key if needed
+./generate-plc-key.sh
 
-# Check IPFS network connectivity
-docker compose exec ipfs ipfs swarm peers
+# Check PLC key format
+echo $PLC_ROTATION_KEY | base64 -d | xxd
 ```
+
+Common PLC Issues:
+- Missing dependencies for key generation
+- Incorrectly formatted key
+- Key not properly set in environment
+- Backup your .env file before regenerating keys
