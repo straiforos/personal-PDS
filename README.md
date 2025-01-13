@@ -13,13 +13,32 @@ git submodule update --init --recursive
 
 ## Environment Setup
 
-1. Create a `.env` file in the PDS directory:
-
+1. Create a `.env` file in the PDS directory by copying the template:
 ```bash
+cp .env.dist .env
+```
+
+2. Configure the required environment variables:
+```bash
+# PDS Configuration
 PDS_JWT_SECRET=<generate-a-secure-random-string>
 PDS_ADMIN_PASSWORD=<your-admin-password>
 PDS_ADMIN_EMAIL=<your-email>
+
+# SMTP Configuration
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USER=<your-email>
+SMTP_PASS=<your-gmail-app-password>
+SMTP_FROM=communitystream@traiforos.com
+SMTP_ENCRYPTION=tls
 ```
+
+3. Generate Gmail App Password:
+   - Enable 2FA in your Google Account
+   - Go to Security > 2-Step Verification > App passwords
+   - Create new app password for "PDS"
+   - Update SMTP_PASS in .env with generated password
 
 ## Deployment Steps
 
@@ -36,6 +55,30 @@ docker compose ps
 3. Check the logs:
 ```bash
 docker compose logs -f pds
+```
+
+## SMTP Testing
+
+1. Make the test script executable:
+```bash
+chmod +x test-smtp.sh
+```
+
+2. Run the SMTP test:
+```bash
+./test-smtp.sh
+```
+
+3. Troubleshooting SMTP:
+```bash
+# Test SMTP connection
+docker compose exec pds nc -zv smtp.gmail.com 587
+
+# Verify environment variables
+docker compose exec pds env | grep SMTP
+
+# Check SMTP-related logs
+docker compose logs pds | grep -i smtp
 ```
 
 ## Ngrok Configuration
@@ -83,4 +126,9 @@ curl -I https://triforce09.traiforos.com
 3. Check PDS health:
 ```bash
 curl https://triforce09.traiforos.com/xrpc/_health
+```
+
+4. Test email functionality:
+```bash
+./test-smtp.sh
 ```
