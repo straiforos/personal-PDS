@@ -162,15 +162,55 @@ docker compose -f /path/to/ngrok/docker-compose.yml restart
 
 ## Account Creation
 
-1. Generate an invite code:
+1. Generate an invite code using the pdsadmin script:
 ```bash
-docker compose exec pds pdsadmin create-invite-code
+# First ensure the submodule is initialized
+git submodule update --init --recursive
+
+# Make the pdsadmin script executable
+chmod +x pds/pdsadmin.sh
+
+# Create pds.env file if it doesn't exist
+cat > pds/pds.env << EOL
+PDS_HOSTNAME=triforce09.traiforos.com
+PDS_ADMIN_PASSWORD=$(grep PDS_ADMIN_PASSWORD .env | cut -d '=' -f2)
+EOL
+
+# Generate a single-use invite code
+./pds/pdsadmin.sh create-invite-code
+
+# Alternative: Run directly from container (if you prefer)
+docker compose exec pds bash
+pdsadmin create-invite-code
 ```
 
 2. Create your account through the Bluesky app:
    - Service URL: https://triforce09.traiforos.com
    - Use the generated invite code
    - Choose handle: @triforce09.traiforos.com
+
+3. Manage invite codes (using pdsadmin script):
+```bash
+# List all invite codes
+./pds/pdsadmin.sh list-invite-codes
+
+# Disable an invite code
+./pds/pdsadmin.sh disable-invite-code <code>
+
+# Check if an invite code is valid
+./pds/pdsadmin.sh check-invite-code <code>
+
+# Generate multiple invite codes
+./pds/pdsadmin.sh create-invite-code --count 5
+
+# Generate invite code with custom expiry
+./pds/pdsadmin.sh create-invite-code --expires-in "7d"  # 7 days
+```
+
+Note: 
+- Invite codes are single-use by default and expire after 24 hours if no expiry is specified
+- The pdsadmin scripts require the PDS_HOSTNAME and PDS_ADMIN_PASSWORD environment variables to be set
+- You can either use the local pdsadmin scripts or run commands directly in the container
 
 ## Backup and Restore
 
