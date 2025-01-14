@@ -12,6 +12,29 @@ git submodule add https://github.com/straiforos/pds.git restore-scripts/PDS
 git submodule update --init --recursive
 ```
 
+## Setting up atproto submodule for debugging
+
+1. Add the `atproto` submodule:
+```bash
+git submodule add https://github.com/straiforos/atproto.git
+```
+
+2. Initialize and update the submodule:
+```bash
+git submodule update --init --recursive
+```
+
+3. Navigate to the submodule directory:
+```bash
+cd atproto
+```
+
+4. Install dependencies and build the project with source maps:
+```bash
+npm install
+npm run build -- --source-map
+```
+
 ## Environment Setup
 
 1. Create a `.env` file in the PDS directory by copying the template:
