@@ -1,0 +1,25 @@
+{
+  "name": "debug-pds",
+  "version": "0.0.1",
+  "description": "Personal Data Server configuration and debugging setup supporting local npm registry for replacing dep. versions.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/straiforos/personal-PDS.git"
+  },
+  "keywords": [
+    "atproto"
+  ],
+  "author": "Stephen Traiforos",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/straiforos/personal-PDS/issues"
+  },
+  "homepage": "https://github.com/straiforos/personal-PDS#readme",
+  "dependencies": {
+    "verdaccio": "^6.0.5"
+  }
+}

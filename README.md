@@ -16,7 +16,7 @@ git submodule update --init --recursive
 
 1. Add the `atproto` submodule:
 ```bash
-git submodule add https://github.com/straiforos/atproto.git
+git submodule add https://github.com/straiforos/atproto.git path/to/your/submodule
 ```
 
 2. Initialize and update the submodule:
@@ -26,7 +26,7 @@ git submodule update --init --recursive
 
 3. Navigate to the submodule directory:
 ```bash
-cd atproto
+cd path/to/your/submodule
 ```
 
 4. Install dependencies and build the project with source maps:
@@ -325,3 +325,97 @@ curl http://localhost/.well-known/atproto-did
 ```
 
 Note: Since we're using Docker, NGINX automatically connects to the PDS service using Docker's internal networking.
+
+## Local Development with Verdaccio
+
+This project uses Verdaccio as a local npm registry to facilitate debugging and development of the atproto packages with source maps.
+
+### Setting up Verdaccio
+
+1. Install dependencies:
+```bash
+npm install
+```
+
+2. Start Verdaccio:
+```bash
+npx verdaccio
+```
+
+3. Configure npm to use the local registry:
+```bash
+# Create .npmrc in project root
+cat > .npmrc << EOL
+registry=http://localhost:4873/
+@atproto:registry=http://localhost:4873/
+strict-ssl=false
+EOL
+```
+
+### Publishing atproto packages locally
+
+1. Navigate to the atproto submodule:
+```bash
+cd atproto
+```
+
+2. Build packages with source maps:
+```bash
+npm install
+npm run build -- --source-map
+```
+
+3. Publish to local registry:
+```bash
+# Login to Verdaccio (first time only)
+npm adduser --registry http://localhost:4873
+
+# Publish all packages
+npm publish --registry http://localhost:4873
+```
+
+### Updating PDS to use local packages
+
+1. Update PDS dependencies to use local versions:
+```bash
+cd pds
+npm install @atproto/pds --registry http://localhost:4873
+```
+
+2. Rebuild PDS with local dependencies:
+```bash
+npm run build
+```
+
+3. Start PDS with source maps:
+```bash
+docker compose up -d --build
+```
+
+### Debugging
+
+1. Configure VS Code launch configuration:
+```json
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "node",
+            "request": "attach",
+            "name": "Attach to PDS",
+            "port": 9229,
+            "restart": true,
+            "sourceMaps": true,
+            "localRoot": "${workspaceFolder}",
+            "remoteRoot": "/app"
+        }
+    ]
+}
+```
+
+2. Start PDS in debug mode:
+```bash
+docker compose -f docker-compose.debug.yml up -d
+```
+
+3. Attach VS Code debugger using the "Attach to PDS" configuration
