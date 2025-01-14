@@ -12,6 +12,8 @@ services:
       - .env
     environment:
       - NODE_ENV=production
+      # Enable Node.js debugging
+      - NODE_OPTIONS=--inspect=0.0.0.0:9229
       # SMTP Configuration for Resend
       - PDS_EMAIL_SMTP_URL=smtps://${SMTP_USER}:${SMTP_PASS}@${SMTP_HOST}:${SMTP_PORT}/
       - PDS_EMAIL_FROM_ADDRESS=${SMTP_FROM}
@@ -24,6 +26,7 @@ services:
       - shared_network
     ports:
       - "3000:3000"
+      - "9229:9229"  # Debug port
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3000/xrpc/_health"]
       interval: 30s

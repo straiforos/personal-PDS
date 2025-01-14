@@ -1,3 +1,6 @@
 [submodule "pds"]
 	path = pds
 	url = https://github.com/straiforos/pds.git
+[submodule "atproto"]
+	path = atproto
+	url = https://github.com/straiforos/atproto.git
